@@ -1,0 +1,4 @@
+*.bin
+*.listing
+*.map
+*.o
