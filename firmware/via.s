@@ -1,10 +1,8 @@
         .setcpu "65C02"
-        .segment "OS"
 
         .export via_init
         .export via_irq
-
-        .importzp jiffies
+        .export get_jiffies
 
 ; PHI2 clock rate (Hz)
 phi2_clock  = 2000000
@@ -29,6 +27,12 @@ via1_pcr    := $801c
 via1_ifr    := $801d
 via1_ier    := $801e
 via1_portax := $801f
+
+        .segment "DATA"
+
+jiffies:    .res    2
+
+        .segment "OS"
 
 via_init:
         stz     jiffies
@@ -78,4 +82,7 @@ via_irq:
 
 @exit:  rts
 
-
+get_jiffies:
+        lda     jiffies
+        ldy     jiffies+1
+        rts
