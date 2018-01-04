@@ -1,6 +1,7 @@
         .setcpu "65C02"
+
+        .exportzp   ptr
+
         .segment "ZEROPAGE"
 
-.exportzp jiffies     := $00
-.exportzp rx_index    := $02
-.exportzp tx_ptr      := $03
+ptr:  .res    2

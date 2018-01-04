@@ -1,19 +1,23 @@
 AS := ca65
 LD := ld65
 
-SRCS   := fw.s acia.s via.s zp.s
-OBJS   := ${SRCS:.s=.o}
-TARGET := fw.bin
+SRCS     := entry.s serial.s vectors.s via.s zp.s
+OBJS   	 := ${SRCS:.s=.o}
+LISTINGS := ${SRCS:.s=.l}
+ROMFILE  := rom.bin
+RAMFILE  := ram.bin
+MAPFILE  := cole-1.map
 
-${TARGET}: ${OBJS}
-	${LD} ${OBJS} -o ${TARGET} -C fw.cfg -m fw.map
+${ROMFILE}: ${OBJS}
+	${LD} ${OBJS} -o ${ROMFILE} -C cole-1.cfg -m ${MAPFILE}
 
-burn: ${TARGET}
-	minipro -p AT28C256 -w ${TARGET}
+burn: ${ROMFILE}
+	minipro -p AT28C256 -w ${ROMFILE}
 
-all: ${TARGET}
+all: ${ROMFILE}
 
 clean:
-	rm -f ${OBJS} ${TARGET} fw.map
+	rm -f ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
+
 .s.o:
-	${AS} $<
+	${AS} --listing ${<:.s=.l} $<
