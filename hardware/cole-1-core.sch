@@ -666,8 +666,6 @@ Wire Wire Line
 Wire Wire Line
 	9250 2150 9450 2150
 Wire Wire Line
-	4850 5150 9800 5150
-Wire Wire Line
 	4750 5250 9800 5250
 Wire Wire Line
 	4650 5350 9800 5350
@@ -690,9 +688,7 @@ Wire Wire Line
 Wire Bus Line
 	9800 800  9800 2200
 Wire Wire Line
-	5050 2750 4850 2750
-Wire Wire Line
-	4850 2750 4850 5150
+	4400 2750 5050 2750
 Wire Wire Line
 	4750 5250 4750 2850
 Wire Wire Line
@@ -703,7 +699,6 @@ Wire Wire Line
 	4650 2950 5050 2950
 Wire Wire Line
 	9450 2150 9450 5150
-Connection ~ 9450 5150
 Wire Wire Line
 	9250 2050 9350 2050
 Wire Wire Line
@@ -758,7 +753,6 @@ Wire Wire Line
 Wire Wire Line
 	4800 5550 4800 7000
 Connection ~ 3600 7000
-NoConn ~ 1850 7000
 Entry Wire Line
 	2700 2700 2800 2600
 Entry Wire Line
@@ -791,4 +785,34 @@ Entry Wire Line
 	2700 2200 2800 2100
 Entry Wire Line
 	2700 2300 2800 2200
+$Comp
+L VCC #PWR05
+U 1 1 5A514B68
+P 1700 6650
+F 0 "#PWR05" H 1700 6500 50  0001 C CNN
+F 1 "VCC" H 1700 6800 50  0000 C CNN
+F 2 "" H 1700 6650 50  0001 C CNN
+F 3 "" H 1700 6650 50  0001 C CNN
+	1    1700 6650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1850 7000 1700 7000
+Wire Wire Line
+	1700 7000 1700 6650
+$Comp
+L VCC #PWR06
+U 1 1 5A514D73
+P 4400 2400
+F 0 "#PWR06" H 4400 2250 50  0001 C CNN
+F 1 "VCC" H 4400 2550 50  0000 C CNN
+F 2 "" H 4400 2400 50  0001 C CNN
+F 3 "" H 4400 2400 50  0001 C CNN
+	1    4400 2400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4400 2400 4400 2750
+Wire Wire Line
+	9450 5150 9800 5150
 $EndSCHEMATC
