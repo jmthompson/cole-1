@@ -1,12 +1,9 @@
         .setcpu "65C02"
 
-        .importzp ptr
-
         .export serial_init
         .export serial_irq
         .export serial_read
         .export serial_write
-        .export serial_print
 
 buffer_size = 256
 max_unread  = buffer_size - 16
@@ -19,18 +16,18 @@ acia_ctrl   := $8000
 acia_status := acia_ctrl
 acia_data   := $8001
 
-        .segment "SERBUF"
+        .segment "BUFFERS"
 
-serial_buffer:  .res   buffer_size
+; serial rx buffer
+serial_buffer:
+        .res    buffer_size
 
-        .segment "DATA"
+        .segment "ZEROPAGE"
 
 rx_rd_idx:  .res   1
 rx_wr_idx:  .res   1
 
         .segment "OS"
-
-; serial rx buffer
 
 serial_init:
         stz     rx_rd_idx
@@ -108,14 +105,3 @@ serial_write:
         pla
         sec
         rts
-
-serial_print:
-        sta     ptr
-        sty     ptr+1
-        ldy     #0
-@loop:  lda     (ptr),Y
-        beq     @exit
-        jsr     serial_write
-        iny
-        bne     @loop
-@exit:  rts
