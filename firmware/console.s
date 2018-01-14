@@ -75,6 +75,14 @@ writeln:
         ldx     tmp
         rts
 
+;
+; Read a line of text with optional single-character prompt.
+;
+; Outputs:
+;
+; Null-terminated line in input_buffer
+; 0 => input_index
+;
 readln:
         ldx     #0
 @loop:  jsr     console_read

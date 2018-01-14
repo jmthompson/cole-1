@@ -1,7 +1,7 @@
 AS := ca65
 LD := ld65
 
-SRCS     := console.s ehbasic.s monitor.s osentry.s serial.s vectors.s via.s
+SRCS     := console.s ehbasic.s monitor.s osentry.s serial.s vectors.s via.s version.s
 OBJS   	 := ${SRCS:.s=.o}
 LISTINGS := ${SRCS:.s=.l}
 ROMFILE  := rom.bin
@@ -19,5 +19,13 @@ all: ${ROMFILE}
 clean:
 	rm -f ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
 
+version.s:
+	echo ".segment \"OS\"" > version.s
+	echo ".export rom_version" >> version.s
+	date "+rom_version: .byte \"%Y%m%d\",0" >> version.s
+
+
 .s.o:
 	${AS} --listing ${<:.s=.l} $<
+
+.PHONY: version.s

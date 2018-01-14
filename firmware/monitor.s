@@ -26,6 +26,8 @@ y_reg:  .res    1
 p_reg:  .res    1
 s_reg:  .res    1
 pc_reg: .res    1
+zp_save:
+        .res   32
 
         .segment "ZEROPAGE"
 
@@ -42,12 +44,14 @@ row_end:
 commands:
         .byte   'm'
         .byte   'r'
+        .byte   'q'
 
 num_commands = *-commands
 
 handlers:
         .word   dump_memory
         .word   run_code
+        .word   monitor_exit
 
 start_banner:
         .byte   "Monitor Ready.", $0d, $00
@@ -55,6 +59,8 @@ brk_banner:
         .byte   "Break", $0d, $00
 
 monitor_start:
+        jsr     save_zeropage
+
         putstr  start_banner
         bra     monitor_loop
 
@@ -80,13 +86,14 @@ monitor_brk:
         sbc     #6
         sta     s_reg
 
+        jsr     save_zeropage
+
         putstr  brk_banner
         jsr     print_registers
 
 monitor_loop:        
         puteol
         putc    #'*'
-        putc    #'>'
         putc    #' '
         jsr     readln
         puteol
@@ -159,16 +166,12 @@ syntax_error:
         ldx     input_index
         inx
         inx
-        inx
-        jsr     print_spaces
-        putc    #'^'
-        puteol
         jsr     print_spaces
         putstr  syntax_error_msg
         rts
 
 syntax_error_msg:
-        .byte   "\- Syntax Error", $0d, $00
+        .byte   "^ Syntax Error", $0d, $00
 
 ;
 ; Print out a string of space whose length is given in the X register.
@@ -384,3 +387,25 @@ dump_memory:
 
 run_code:
         jmp     (start_loc)
+
+save_zeropage:
+        ldx     #$1f
+@loop:  lda     zp_save,x
+        sta     $e0,x
+        dex
+        bpl     @loop
+        rts
+
+restore_zeropage:
+        ldx     #$1f
+@loop:  lda     $e0,x
+        sta     zp_save,x
+        dex
+        bpl     @loop
+        rts
+
+monitor_exit:
+        jsr     restore_zeropage
+        pla                         ; pop return address of the dispatcher
+        pla
+        rts

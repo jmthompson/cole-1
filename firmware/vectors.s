@@ -9,12 +9,12 @@
         .import serial_irq
         .import serial_read
         .import serial_write
-        .import monitor_start
         .import monitor_brk
         .import console_read
         .import console_write
         .import writeln
-
+        .import LAB_COLD
+        .import rom_version
         .import via_init
         .import via_irq
 
@@ -47,8 +47,10 @@ reset:  ldx     #$ff
 
         cli
 
-        putstr  boot_banner
-        jmp     monitor_start
+        putstr  boot_banner1    ; Display the boot banner
+        putstr  rom_version
+        putstr  boot_banner2
+        jmp     LAB_COLD        ; ... and drop the user into BASIC
 
 nmi:    jmp     reset
 
@@ -69,13 +71,15 @@ irq:
 @brk:   cli
         jmp     monitor_brk
 
-boot_banner:
+boot_banner1:
         .byte   $0d
-        .byte   "******************************", $0d
-        .byte   "*      COLE-1 65C02 SBC      *", $0d
-        .byte   "* Firmware Version: 20180106 *", $0d
-        .byte   "******************************", $0d
-        .byte   $0d
+        .byte   "*******************************", $0d
+        .byte   "*      COLE-1 65C02 SBC       *", $0d
+        .byte   "* System ROM Version "
+        .byte   $00
+boot_banner2:
+        .byte   " *", $0d
+        .byte   "*******************************", $0d, $0d
         .byte   $00
 
         .segment "HWVECTORS"

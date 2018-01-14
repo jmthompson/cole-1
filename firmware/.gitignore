@@ -2,3 +2,4 @@
 *.l
 *.map
 *.o
+version.s
