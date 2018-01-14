@@ -1,3 +1,8 @@
+; *******************************
+; *  COLE-1 65c02 SBC Firmware  *
+; * (C) 2018 Joshua M. Thompson *
+; *******************************
+
         .setcpu "65C02"
 
         .export via_init
@@ -6,7 +11,7 @@
 
         .include "macros.inc"
 
-; PHI2 clock rate (Hz)
+; Phi2 clock rate (Hz)
 phi2_clock  = 2000000
 ; Desired jiffy timer rate (Hz)
 jiffy_clock = 100
@@ -42,8 +47,11 @@ via1_portax := $801f
 
         .segment "ZEROPAGE"
 
-jiffies:    .res    2
 spi_out:    .res    1
+
+        .segment "DATA"
+
+jiffies:    .res    2
 
         .segment "OS"
 
@@ -79,9 +87,12 @@ via_irq:
 
         bit     via1_t1cl   ; clear the interrupt
         inc16   jiffies
-        lda     via1_portb
-        eor     #PORTB_WATCHDOG
-        sta     via1_portb
+
+        ; The watchdog is now connected to the Phi2 clock, because I'd
+        ; rather have the extra GPIO bit than lockup protection.
+        ;lda     via1_portb
+        ;eor     #PORTB_WATCHDOG
+        ;sta     via1_portb
 
 @exit:  rts
 

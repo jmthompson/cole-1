@@ -1,6 +1,7 @@
-;
-; COLE-1 firmware
-;
+; *******************************
+; *  COLE-1 65c02 SBC Firmware  *
+; * (C) 2018 Joshua M. Thompson *
+; *******************************
 
         .setcpu "65C02"
 
@@ -8,7 +9,7 @@
         .import serial_irq
         .import serial_read
         .import serial_write
-        .import monitor_entry
+        .import monitor_start
         .import monitor_brk
         .import console_read
         .import console_write
@@ -47,7 +48,7 @@ reset:  ldx     #$ff
         cli
 
         putstr  boot_banner
-        jmp     monitor_entry
+        jmp     monitor_start
 
 nmi:    jmp     reset
 

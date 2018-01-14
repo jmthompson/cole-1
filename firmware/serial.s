@@ -1,3 +1,8 @@
+; *******************************
+; *  COLE-1 65c02 SBC Firmware  *
+; * (C) 2018 Joshua M. Thompson *
+; *******************************
+
         .setcpu "65C02"
 
         .export serial_init
@@ -16,16 +21,16 @@ acia_ctrl   := $8000
 acia_status := acia_ctrl
 acia_data   := $8001
 
-        .segment "BUFFERS"
+        .segment "DATA"
 
 ; serial rx buffer
+
 serial_buffer:
         .res    buffer_size
-
-        .segment "ZEROPAGE"
-
-rx_rd_idx:  .res   1
-rx_wr_idx:  .res   1
+rx_rd_idx:
+        .res   1
+rx_wr_idx:
+        .res   1
 
         .segment "OS"
 
@@ -81,6 +86,7 @@ serial_read:
 
 @exit:  pla
         plx
+        cmp     #0      ; set zero flag
         clc
         rts
 

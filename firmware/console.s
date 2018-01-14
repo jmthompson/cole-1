@@ -1,3 +1,8 @@
+; *******************************
+; *  COLE-1 65c02 SBC Firmware  *
+; * (C) 2018 Joshua M. Thompson *
+; *******************************
+
         .setcpu "65C02"
 
         .export console_read
@@ -15,8 +20,6 @@ buffer_size = 64
 
 tmp:    .res    1
 ptr:    .res    2
-input_index:
-        .res    1
 
         .segment "OSVECTORS"
 
@@ -25,10 +28,12 @@ console_read:
 console_write:
         .res    3
 
-        .segment "BUFFERS"
+        .segment "DATA"
 
 input_buffer:
         .res    buffer_size
+input_index:
+        .res    1
 
         .segment "OS"
 

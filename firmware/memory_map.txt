@@ -1,0 +1,16 @@
+$0000 - $00DF : [ unused, available for application use ]
+$00E0 - $00FF : system zero page (used by various ROM functions)
+$0100 - $01FF : stack
+$0200 - $037F : OS data (buffers, system variables, etc.)
+$0380 - $03EF : [ unused, available for application use ]
+$03F0 - $03FF : OS vectors (I/O, etc.)
+$0400 - $7FFF : [ unused, available for application use ]
+$8000 - $800F : 6850 ACIA
+$8010 - $801F : 6522 VIA
+$8020 - $807F : unused, reserved for additonal I/O
+$8080 - $87FF : unused, reserved
+$8800 - $8FFF : OS entry point table
+$9000 - $FFFF : OS ROM
+
+Note that EhBASIC is considered an application and makes use of all of the
+"reserved for application use" areas.

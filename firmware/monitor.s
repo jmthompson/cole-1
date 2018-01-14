@@ -1,6 +1,11 @@
+; *******************************
+; *  COLE-1 65c02 SBC Firmware  *
+; * (C) 2018 Joshua M. Thompson *
+; *******************************
+
         .setcpu "65C02"
 
-        .export monitor_entry
+        .export monitor_start
         .export monitor_brk
 
         .import console_read
@@ -8,13 +13,12 @@
         .import readln
         .import writeln
         .import input_buffer
-        .importzp input_index
+        .import input_index
 
         .include "macros.inc"
 
-        .segment "ZEROPAGE"
+        .segment "DATA"
 
-ptr:    .res    2
 hex:    .res    2
 a_reg:  .res    1
 x_reg:  .res    1
@@ -22,22 +26,37 @@ y_reg:  .res    1
 p_reg:  .res    1
 s_reg:  .res    1
 pc_reg: .res    1
+
+        .segment "ZEROPAGE"
+
+ptr:    .res    2
 start_loc:
         .res    2
 end_loc:
         .res    2
 row_end:
-        .res    2
+        .res    1
 
         .segment "OS"
 
 commands:
-        .byte 'm'
+        .byte   'm'
+        .byte   'r'
 
 num_commands = *-commands
 
 handlers:
         .word   dump_memory
+        .word   run_code
+
+start_banner:
+        .byte   "Monitor Ready.", $0d, $00
+brk_banner:
+        .byte   "Break", $0d, $00
+
+monitor_start:
+        putstr  start_banner
+        bra     monitor_loop
 
 monitor_brk:
         lda     $0101,X
@@ -64,26 +83,27 @@ monitor_brk:
         putstr  brk_banner
         jsr     print_registers
 
-monitor_entry:
-        putstr  entry_banner
-
-@loop:  puteol
+monitor_loop:        
+        puteol
         putc    #'*'
         putc    #'>'
         putc    #' '
         jsr     readln
         puteol
-        jsr     parse_command
-        bcs     @loop
+        jsr     parse_input_buffer
+        bcs     monitor_loop
         jsr     dispatch
-        bra     @loop
+        bra     monitor_loop
 
 dispatch:
         asl
         tax
         jmp     (handlers,X)
 
-parse_command:
+;
+; Parse the current input_buffer.
+;
+parse_input_buffer:
         jsr     parse_hex
         bcs     @no_start_loc
 
@@ -119,7 +139,7 @@ parse_command:
 @loop:  cmp     commands,Y
         beq     @match
         iny
-        cpy     num_commands
+        cpy     #num_commands
         bne     @loop
         bra     @bad
 @match: inx
@@ -131,20 +151,46 @@ parse_command:
         sec
         rts
 
+;
+; Display the position of a syntax error in the input buffer
+; The error is assumed to be at the current input_index.
+;
 syntax_error:
-        lda     #' '
-        jsr     console_write
-        jsr     console_write
-        jsr     console_write   ; 3x for prompt
         ldx     input_index
-        beq     @show
+        inx
+        inx
+        inx
+        jsr     print_spaces
+        putc    #'^'
+        puteol
+        jsr     print_spaces
+        putstr  syntax_error_msg
+        rts
+
+syntax_error_msg:
+        .byte   "\- Syntax Error", $0d, $00
+
+;
+; Print out a string of space whose length is given in the X register.
+; X may be zero, in which case nothing is printed.
+;
+print_spaces:
+        cpx     #0
+        beq     @exit
+        pha
+        phx
+        lda     #' '
 @loop:  jsr     console_write
         dex
         bne     @loop
-@show:  putc    #'^'
-        puteol
-        rts
+        plx
+        pla
+@exit:  rts
 
+;
+; Skip input_index ahead to either the first non-whitespace character,
+; or the end of line NULL, whichever occurs first.
+;
 skip_whitespace:
         pha
         phx
@@ -160,6 +206,13 @@ skip_whitespace:
         pla
         rts
 
+;
+; Attempt to parse up to four hex digits at the current input_index.
+; On exit, if carry is set, no valid hex digits were found. If carry
+; is clear, the hex number parsed will be in the "hex" variable, and
+; the input_index will point to the first character after the parsed
+; value.
+;
 parse_hex:
         pha
         phx
@@ -205,6 +258,10 @@ parse_hex:
         sec
         rts
 
+;
+; Print the the lower four bits of the accumulator as a single hexadecimal
+; digit. This operations destroys the accumulator contents
+;
 print_hex_digit:
         cmp     #10
         bcs     @alpha
@@ -213,6 +270,10 @@ print_hex_digit:
 @alpha: adc     #'A'-11         ; carry is already set, so -11 instead of -12
 @print: jmp     console_write
 
+;
+; Print the contents of the accumulator as a two-digit hexadecimal number.
+; The contents of the accumulator are preserved.
+;
 print_hex:
         pha
         lsr
@@ -227,6 +288,9 @@ print_hex:
         pla
         rts
 
+;
+; Display the values of the saved CPU registers.
+;
 print_registers:
         putc    #'A'
         putc    #'='
@@ -318,9 +382,5 @@ dump_memory:
         sta     start_loc+1
         jmp     dump_memory
 
-brk_banner:
-        .byte   "Break", $0d, $00
-
-entry_banner:
-        .byte   "Monitor Ready.", $0d, $00
-
+run_code:
+        jmp     (start_loc)
