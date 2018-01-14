@@ -1,3 +1,7 @@
 *.bak
 *-bak
 *.net
+*.gbr
+*.drl
+*.dsn
+*.zip
