@@ -15,10 +15,18 @@
         .import input_buffer
         .import input_index
 
+        .import DISASM
         .import XModemSend
         .import XModemRcv
 
         .importzp xmptr
+        .importzp xmeofp
+
+        .export print_spaces
+        .export print_hex
+
+        .exportzp start_loc
+        .exportzp end_loc
 
         .include "macros.inc"
 
@@ -47,18 +55,22 @@ row_end:
         .segment "OS"
 
 commands:
+        .byte   'l'
         .byte   'm'
         .byte   'r'
         .byte   'q'
-        .byte   'x'
+        .byte   '<'
+        .byte   '>'
 
 num_commands = *-commands
 
 handlers:
+        .word   disassemble
         .word   dump_memory
         .word   run_code
         .word   monitor_exit
         .word   xmodem_receive
+        .word   xmodem_send
 
 start_banner:
         .byte   "Monitor Ready.", $0d, $00
@@ -330,6 +342,15 @@ print_registers:
         puteol
         rts
 
+disassemble:
+        ldx     #24
+@loop:  phx
+        jsr     DISASM
+        plx
+        dex
+        bne     @loop
+        rts
+
 dump_memory:
         lda     start_loc
         ora     #7
@@ -381,6 +402,13 @@ dump_memory:
         lda     row_end
         cmp     end_loc
         bne     @nextrow
+        lda     end_loc
+        clc
+        adc     #1
+        sta     start_loc
+        lda     end_loc+1
+        adc     #0
+        sta     start_loc+1
         rts
 @nextrow:
         lda     row_end
@@ -416,6 +444,17 @@ monitor_exit:
         pla                         ; pop return address of the dispatcher
         pla
         rts
+
+xmodem_send:
+        lda     start_loc
+        sta     xmptr
+        lda     start_loc+1
+        sta     xmptr+1
+        lda     end_loc
+        sta     xmeofp
+        lda     end_loc+1
+        sta     xmeofp+1
+        jmp     XModemSend
 
 xmodem_receive:
         lda     start_loc

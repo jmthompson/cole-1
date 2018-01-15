@@ -141,22 +141,10 @@ XModemSend:
         jsr     GetByte
         bcs     @wait4crc   ; wait for something to come in...
         cmp     #'C'        ; is it the "C" to start a CRC xfer?
-        beq     @setstaddr
+        beq     @ldbuffer
         cmp     #ESC        ; is it a cancel? <Esc> Key
         bne     @wait4crc   ; No, wait for another character
         jmp     @prtabort   ; Print abort msg and exit
-@setstaddr:
-        ldy     #$00        ; init data block offset to 0
-        ldx     #$04        ; preload X to Receive buffer
-        lda     #$01        ; manually load blk number    
-        sta     Rbuff       ; into 1st byte
-        lda     #$FE        ; load 1's comp of block #    
-        sta     Rbuff+1     ; into 2nd byte
-        lda     xmptr       ; load low byte of start address        
-        sta     Rbuff+2     ; into 3rd byte    
-        lda     xmptrh      ; load hi byte of start address        
-        sta     Rbuff+3     ; into 4th byte
-        bra     @ldbuff1    ; jump into buffer load routine
 @ldbuffer:
         lda     lastblk     ; Was the last block sent?
         beq     @ldbuff0    ; no, send the next one    
