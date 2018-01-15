@@ -1,7 +1,7 @@
 AS := ca65
 LD := ld65
 
-SRCS     := console.s ehbasic.s monitor.s osentry.s serial.s vectors.s via.s version.s
+SRCS     := console.s ehbasic.s monitor.s osentry.s serial.s vectors.s via.s version.s xmodem.s
 OBJS   	 := ${SRCS:.s=.o}
 LISTINGS := ${SRCS:.s=.l}
 ROMFILE  := rom.bin

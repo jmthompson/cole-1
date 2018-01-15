@@ -15,6 +15,11 @@
         .import input_buffer
         .import input_index
 
+        .import XModemSend
+        .import XModemRcv
+
+        .importzp xmptr
+
         .include "macros.inc"
 
         .segment "DATA"
@@ -45,6 +50,7 @@ commands:
         .byte   'm'
         .byte   'r'
         .byte   'q'
+        .byte   'x'
 
 num_commands = *-commands
 
@@ -52,6 +58,7 @@ handlers:
         .word   dump_memory
         .word   run_code
         .word   monitor_exit
+        .word   xmodem_receive
 
 start_banner:
         .byte   "Monitor Ready.", $0d, $00
@@ -409,3 +416,10 @@ monitor_exit:
         pla                         ; pop return address of the dispatcher
         pla
         rts
+
+xmodem_receive:
+        lda     start_loc
+        sta     xmptr
+        lda     start_loc+1
+        sta     xmptr+1
+        jmp     XModemRcv
