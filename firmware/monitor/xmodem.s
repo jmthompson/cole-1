@@ -114,7 +114,7 @@ CR      =   $0d     ; carriage return
 LF      =   $0a     ; line feed
 ESC     =   $1b     ; ESC to exit
 
-        .segment "OS"
+        .segment "CODE"
 ;
 ;^^^^^^^^^^^^^^^^^^^^^^ Start of Program ^^^^^^^^^^^^^^^^^^^^^^
 ;

@@ -32,7 +32,7 @@ rx_rd_idx:
 rx_wr_idx:
         .res   1
 
-        .segment "OS"
+        .segment "CODE"
 
 serial_init:
         stz     rx_rd_idx

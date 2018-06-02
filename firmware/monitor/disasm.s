@@ -143,7 +143,7 @@ LEN:    .res    1
 REL:    .res    2
 DEST:   .res    2
 
-        .segment "OS"
+        .segment "CODE"
 
 ; Disassemble instruction at address ADDR (low) / ADDR+1 (high). On
 ; return ADDR/ADDR+1 points to next instruction so it can be called

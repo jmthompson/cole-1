@@ -13,7 +13,7 @@
 
         .include "macros.inc"
 
-        .segment "OS"
+        .segment "CODE"
 
 jeros_init:
         putstr  @banner

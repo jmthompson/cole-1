@@ -21,21 +21,18 @@ buffer_size = 64
 tmp:    .res    1
 ptr:    .res    2
 
-        .segment "OSVECTORS"
+        .segment "DATA"
 
 console_read:
         .res    3
 console_write:
         .res    3
-
-        .segment "DATA"
-
 input_buffer:
-        .res    buffer_size
+        .res    256
 input_index:
         .res    1
 
-        .segment "OS"
+        .segment "CODE"
 
 writeln:
         pha

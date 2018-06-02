@@ -51,7 +51,7 @@ end_loc:
 row_end:
         .res    1
 
-        .segment "OS"
+        .segment "CODE"
 
 commands:
         .byte   'l'

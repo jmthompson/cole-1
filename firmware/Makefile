@@ -20,7 +20,7 @@ clean:
 	rm -f ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
 
 version.s:
-	echo ".segment \"OS\"" > version.s
+	echo ".segment \"CODE\"" > version.s
 	echo ".export rom_version" >> version.s
 	date "+rom_version: .byte \"%Y%m%d\",0" >> version.s
 

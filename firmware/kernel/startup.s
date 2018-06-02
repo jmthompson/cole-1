@@ -20,11 +20,13 @@
 
         .import jeros_init
 
+        .export irq
+        .export nmi
         .export reset
 
         .include "macros.inc"
 
-        .segment "OS"
+        .segment "CODE"
 
 reset:  ldx     #$ff
         txs
@@ -86,9 +88,3 @@ boot_banner2:
         .byte   " *", $0d
         .byte   "*******************************", $0d, $0d
         .byte   $00
-
-        .segment "HWVECTORS"
-
-        .word   nmi
-        .word   reset
-        .word   irq

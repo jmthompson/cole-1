@@ -19,10 +19,17 @@
 ; 2.22	fixed RND() breaking the get byte routine
 
             .setcpu "65C02"
-            .segment "OS"
+            .segment "CODE"
+
             .export LAB_COLD
 
-; zero page use ..
+            .import __USRRAM_START__
+            .import __USRRAM_SIZE__
+
+            .import console_read
+            .import console_write
+
+            ; zero page use ..
 
 Usrjmp    := $0A		; USR function JMP address
 Usrjpl    := Usrjmp+1	; USR function JMP vector low byte
@@ -433,8 +440,8 @@ VEC_SV		= VEC_LD+2	; save vector
 Ibuffs  = $0380     ; start of input buffer
 Ibuffe  = $03DF     ; end of input buffer
 
-Ram_base = $0400    ; start of user RAM (set as needed, should be page aligned)
-Ram_top  = $8000    ; end of user RAM+1 (set as needed, should be page aligned)
+Ram_base = __USRRAM_START__    ; start of user RAM (set as needed, should be page aligned)
+Ram_top  = __USRRAM_START__ + __USRRAM_SIZE__ ; end of user RAM+1 (set as needed, should be page aligned)
 
 ; BASIC cold start entry point
 
@@ -7638,8 +7645,8 @@ LAB_TWOPI:
         JMP LAB_UFAC    ; unpack memory (AY) into FAC1 and return
 
 ; system dependant i/o vectors
-V_INPT  = $03f0
-V_OUTP  = $03f3
+V_INPT  = console_read
+V_OUTP  = console_write
 V_LOAD:
         JMP (VEC_LD)    ; load BASIC program
 V_SAVE:

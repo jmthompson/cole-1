@@ -54,7 +54,7 @@ spi_byte:   .res    1
 
 jiffies:    .res    2
 
-        .segment "OS"
+        .segment "CODE"
 
 via_init:
         stz     jiffies
