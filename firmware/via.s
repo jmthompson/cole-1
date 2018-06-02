@@ -8,23 +8,24 @@
         .export via_init
         .export via_irq
         .export get_jiffies
+        .export wait_ms
+        .export spi_select
+        .export spi_deselect
+        .export spi_transfer
 
         .include "macros.inc"
 
 ; Phi2 clock rate (Hz)
-phi2_clock  = 2000000
+phi2_clock  = 4000000
 ; Desired jiffy timer rate (Hz)
 jiffy_clock = 100
 ; Timer1 value
 jiffy_timer = (phi2_clock / jiffy_clock) - 2
 
 ; Port B bit assignments
-PORTB_WATCHDOG = $80
 PORTB_MISO     = $40
-PORTB_SS3      = $20
-PORTB_SS2      = $10
-PORTB_SS1      = $08
-PORTB_SS0      = $04
+PORTB_EN       = $20
+PORTB_SS       = $1C
 PORTB_MOSI     = $02
 PORTB_SCLK     = $01
 
@@ -47,7 +48,7 @@ via1_portax := $801f
 
         .segment "ZEROPAGE"
 
-spi_out:    .res    1
+spi_byte:   .res    1
 
         .segment "DATA"
 
@@ -60,7 +61,7 @@ via_init:
         stz     jiffies+1
 
         stz     via1_ddra
-        lda     #PORTB_WATCHDOG|PORTB_SS3|PORTB_SS2|PORTB_SS1|PORTB_SS0|PORTB_MOSI|PORTB_SCLK
+        lda     #PORTB_EN|PORTB_SS|PORTB_MOSI|PORTB_SCLK
         sta     via1_ddrb
 
         stz     via1_porta
@@ -87,13 +88,6 @@ via_irq:
 
         bit     via1_t1cl   ; clear the interrupt
         inc16   jiffies
-
-        ; The watchdog is now connected to the Phi2 clock, because I'd
-        ; rather have the extra GPIO bit than lockup protection.
-        ;lda     via1_portb
-        ;eor     #PORTB_WATCHDOG
-        ;sta     via1_portb
-
 @exit:  rts
 
 get_jiffies:
@@ -101,46 +95,82 @@ get_jiffies:
         ldy     jiffies+1
         rts
 
+; Wait up to 15ms (assuming 4MHz phi2 clock), with about 3% error because
+; we use a x4096 multiplier instead of x4000.
+;
+; Inputs:
+; A = number of ms to wait
+
+wait_ms:
+        and     #$0f        ; can't wait more than about 15 ms
+        asl
+        asl
+        asl
+        asl                 ; x4096 because this will be the upper byte
+        stz     via1_t2cl
+        sta     via1_t2ch
+@wait:  lda     via1_ifr
+        and     #$20
+        beq     @wait
+        rts
+
 ; Perform a single byte transfer to the specified SPI device.
 ;
 ; Inputs:
-
 ; A = byte to transmit
-; X = device number (0-3).
 ;
 ; Output:
-; A = byte received
+; A = byte receiv,ed
 
 spi_transfer:
         phx
-        sta     spi_out
-        jsr     spi_select_device
+        sta     spi_byte
         ldx     #8          ; do 8 bits
 @loop:  lda     via1_portb
-        and     #($FF-PORTB_MOSI)
-        bit     spi_out     ; bit 7 => neg bit
+        and     #<~PORTB_MOSI
+        bit     spi_byte    ; bit 7 => neg bit
         bpl     @out
         ora     #PORTB_MOSI
-@out:   sta     via1_portb  ; set the data line
+@out:   sta     via1_portb  ; set MOSI
         inc     via1_portb  ; raise SCLK
         clc
         bit     via1_portb  ; MISO => overflow
         bvc     @shift
         sec 
-@shift: rol     spi_out     ; rotate MOSI out, and MISO (via carry) in
+@shift: rol     spi_byte    ; rotate MOSI out, and MISO (via carry) in
         dec     via1_portb  ; lower SCLK
         dex
         bne     @loop
         plx
-        jsr     spi_select_device
-        lda     spi_out
+        lda     spi_byte
         rts
 
-spi_select_device:
-        lda     via1_portb
-        eor     spi_devices,X
+; Open communications to the selected SPI device
+;
+; Inputs:
+; X = device to select (0-4)
+;
+; Outputs:
+; None
+
+spi_select:
+        pha
+        txa
+        and     #7
+        asl
+        asl
+        ora     #PORTB_EN
+        ora     via1_portb
         sta     via1_portb
+        pla
         rts
 
-spi_devices:
-        .byte   $00,PORTB_SS0,PORTB_SS1,PORTB_SS2,PORTB_SS3
+; Deselect the currently selected SPI device
+
+spi_deselect:
+        pha
+        lda     via1_portb
+        and     #<~(PORTB_EN|PORTB_SS)
+        sta     via1_portb
+        pla
+        rts
