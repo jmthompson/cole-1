@@ -38,19 +38,19 @@ input_index:
         .segment "OS"
 
 writeln:
-        stx     tmp
-        tsx
         pha
+        phx
         phy
-        lda     $0101,X
+        tsx
+        lda     $0104,X
         sta     ptr
         clc
         adc     #2
-        sta     $0101,X
-        lda     $0102,X
+        sta     $0104,X
+        lda     $0105,X
         sta     ptr+1
         adc     #0
-        sta     $0102,X
+        sta     $0105,X
 
         ldy     #1
         lda     (ptr),Y
@@ -71,8 +71,8 @@ writeln:
 @notcr: iny
         bne     @loop
 @exit:  ply
+        plx
         pla
-        ldx     tmp
         rts
 
 ;

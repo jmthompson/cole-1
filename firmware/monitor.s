@@ -5,9 +5,6 @@
 
         .setcpu "65C02"
 
-        .export monitor_start
-        .export monitor_brk
-
         .import console_read
         .import console_write
         .import readln
@@ -22,6 +19,8 @@
         .importzp xmptr
         .importzp xmeofp
 
+        .export monitor_start
+        .export monitor_brk
         .export print_spaces
         .export print_hex
 
@@ -285,11 +284,11 @@ parse_hex:
 ; digit. This operations destroys the accumulator contents
 ;
 print_hex_digit:
-        cmp     #10
-        bcs     @alpha
-        adc     #'0'
-        bra     @print
-@alpha: adc     #'A'-11         ; carry is already set, so -11 instead of -12
+        and     #$0f
+        ora     #'0'
+        cmp     #'9'+1
+        bcc     @print
+        adc     #6
 @print: jmp     console_write
 
 ;

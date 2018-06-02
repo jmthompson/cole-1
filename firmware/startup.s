@@ -18,6 +18,8 @@
         .import via_init
         .import via_irq
 
+        .import jeros_init
+
         .export reset
 
         .include "macros.inc"
@@ -50,6 +52,9 @@ reset:  ldx     #$ff
         putstr  boot_banner1    ; Display the boot banner
         putstr  rom_version
         putstr  boot_banner2
+
+        jsr     jeros_init        ; Initialize JEROS
+
         jmp     LAB_COLD        ; ... and drop the user into BASIC
 
 nmi:    jmp     reset

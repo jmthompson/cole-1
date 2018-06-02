@@ -9,28 +9,36 @@
         .import monitor_start
         .import LAB_COLD
         .import get_jiffies
+        .import wait_ms
         .import serial_read
         .import serial_write
         .import readln
+        .import writeln
+        .import spi_transfer
+        .import spi_select
+        .import spi_deselect
 
 OS_RESET:
-        .byte   $4C
-        .word   reset
+        jmp     reset
 OS_MONITOR_START:
-        .byte   $4C
-        .word   monitor_start
+        jmp     monitor_start
 OS_BASIC_START:
-        .byte   $4C
-        .word   LAB_COLD
+        jmp     LAB_COLD
 OS_GET_JIFFIES:
-        .byte   $4C
-        .word   get_jiffies
+        jmp     get_jiffies
+OS_WAIT_MS:
+        jmp     wait_ms
 OS_SERIAL_READ:
-        .byte   $4C
-        .word   serial_read
+        jmp     serial_read
 OS_SERIAL_WRITE:
-        .byte   $4C
-        .word   serial_write
+        jmp     serial_write
 OS_READLN:
-        .byte   $4C
-        .word   readln
+        jmp     readln
+OS_WRITELN:
+        jmp     writeln
+OS_SPI_SELECT:
+        jmp     spi_select
+OS_SPI_DESELECT:
+        jmp     spi_deselect
+OS_SPI_TRANSFER:
+        jmp     spi_transfer
