@@ -14,7 +14,7 @@ buffer_size = 256
 max_unread  = buffer_size - 16
 
 CMD_RESET       = %00000011    ; master reset
-CMD_8N1_DIV16   = %10010101    ; 8N1, clock/16, enable Rx interrupts
+CMD_8N1_DIV64   = %10010110    ; 8N1, clock/64, enable Rx interrupts
 CMD_RTS_HIGH    = %01000000    ; Raise RTS
 
 acia_ctrl   := $8000
@@ -40,7 +40,7 @@ serial_init:
 
         lda     #CMD_RESET
         sta     acia_ctrl
-        lda     #CMD_8N1_DIV16
+        lda     #CMD_8N1_DIV64
         sta     acia_ctrl
         rts
 
@@ -59,7 +59,7 @@ serial_irq:
         cmp     max_unread
         bcc     @exit
 
-        lda     #CMD_8N1_DIV16|CMD_RTS_HIGH
+        lda     #CMD_8N1_DIV64|CMD_RTS_HIGH
         sta     acia_ctrl
 
 @exit:  rts
@@ -81,7 +81,7 @@ serial_read:
         bcs     @exit
 
 ; < max_unread unread, so lower RTS again
-        lda     #CMD_8N1_DIV16
+        lda     #CMD_8N1_DIV64
         sta     acia_ctrl
 
 @exit:  pla
