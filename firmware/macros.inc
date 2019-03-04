@@ -35,8 +35,9 @@ CR      := $0d
 
 ; Output a null-terminated string
 .macro  putstr  string
+        lda     #<string
+        ldx     #>string
         jsr     writeln
-        .word   string
 .endmacro
 
 ; Output a two-digit hex number

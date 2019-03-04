@@ -132,9 +132,9 @@ AM_ABSOLUTE_INDEXED_INDIRECT = 15   ; JMP ($1234,X) [65C02 only]
 
 ; *** VARIABLES ***
 
-        .segment "ZEROPAGE"
-
 ADDR = start_loc
+
+        .segment "DATA"
 
 OPCODE: .res    1
 OP:     .res    1

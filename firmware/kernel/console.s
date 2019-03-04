@@ -11,6 +11,8 @@
         .export writeln
         .export input_buffer
         .export input_index
+        .export print_hex
+        .export print_hex_digit
 
         .include "macros.inc"
 
@@ -35,27 +37,9 @@ input_index:
         .segment "CODE"
 
 writeln:
-        pha
-        phx
         phy
-        tsx
-        lda     $0104,X
         sta     ptr
-        clc
-        adc     #2
-        sta     $0104,X
-        lda     $0105,X
-        sta     ptr+1
-        adc     #0
-        sta     $0105,X
-
-        ldy     #1
-        lda     (ptr),Y
-        tax
-        iny
-        lda     (ptr),Y
-        sta     ptr+1
-        stx     ptr
+        stx     ptr+1
 
         ldy     #0
 @loop:  lda     (ptr),Y
@@ -68,8 +52,6 @@ writeln:
 @notcr: iny
         bne     @loop
 @exit:  ply
-        plx
-        pla
         rts
 
 ;
@@ -103,3 +85,34 @@ readln:
         jsr     console_write 
         dex
         bra     @loop
+
+;
+; Print the the lower four bits of the accumulator as a single hexadecimal
+; digit. This operations destroys the accumulator contents
+;
+print_hex_digit:
+        and     #$0f
+        ora     #'0'
+        cmp     #'9'+1
+        bcc     @print
+        adc     #6
+@print: jmp     console_write
+
+;
+; Print the contents of the accumulator as a two-digit hexadecimal number.
+; The contents of the accumulator are preserved.
+;
+print_hex:
+        pha
+        lsr
+        lsr
+        lsr
+        lsr
+        jsr     print_hex_digit
+        pla
+        pha
+        and     #$0f
+        jsr     print_hex_digit
+        pla
+        rts
+

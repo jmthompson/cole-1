@@ -18,7 +18,7 @@
         .import via_init
         .import via_irq
 
-        .import jeros_init
+        .import jros_init
 
         .export irq
         .export nmi
@@ -55,7 +55,7 @@ reset:  ldx     #$ff
         putstr  rom_version
         putstr  boot_banner2
 
-        jsr     jeros_init        ; Initialize JEROS
+        jsr     jros_init        ; Initialize JR/OS
 
         jmp     LAB_COLD        ; ... and drop the user into BASIC
 

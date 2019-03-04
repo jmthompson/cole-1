@@ -25,33 +25,33 @@
         .segment "VECTORS"
 
 OS_RESET:
-        .word     reset
+        jmp     reset
 OS_MONITOR_START:
-        .word     monitor_start
+        jmp     monitor_start
 OS_BASIC_START:
-        .word     LAB_COLD
+        jmp     LAB_COLD
 OS_GET_JIFFIES:
-        .word     get_jiffies
+        jmp     get_jiffies
 OS_WAIT_MS:
-        .word     wait_ms
+        jmp     wait_ms
 OS_SERIAL_READ:
-        .word     serial_read
+        jmp     serial_read
 OS_SERIAL_WRITE:
-        .word     serial_write
+        jmp     serial_write
 OS_CONSOLE_READ:
-        .word     console_read
+        jmp     console_read
 OS_CONSOLE_WRITE:
-        .word     console_write
+        jmp     console_write
 OS_READLN:
-        .word     readln
+        jmp     readln
 OS_WRITELN:
-        .word     writeln
+        jmp     writeln
 OS_SPI_SELECT:
-        .word     spi_select
+        jmp     spi_select
 OS_SPI_DESELECT:
-        .word     spi_deselect
+        jmp     spi_deselect
 OS_SPI_TRANSFER:
-        .word     spi_transfer
+        jmp     spi_transfer
 
         .segment "HWVECTORS"
 

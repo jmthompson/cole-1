@@ -11,6 +11,7 @@
         .import writeln
         .import input_buffer
         .import input_index
+        .import print_hex
 
         .import DISASM
         .import XModemSend
@@ -22,7 +23,6 @@
         .export monitor_start
         .export monitor_brk
         .export print_spaces
-        .export print_hex
 
         .exportzp start_loc
         .exportzp end_loc
@@ -277,36 +277,6 @@ parse_hex:
         plx
         pla
         sec
-        rts
-
-;
-; Print the the lower four bits of the accumulator as a single hexadecimal
-; digit. This operations destroys the accumulator contents
-;
-print_hex_digit:
-        and     #$0f
-        ora     #'0'
-        cmp     #'9'+1
-        bcc     @print
-        adc     #6
-@print: jmp     console_write
-
-;
-; Print the contents of the accumulator as a two-digit hexadecimal number.
-; The contents of the accumulator are preserved.
-;
-print_hex:
-        pha
-        lsr
-        lsr
-        lsr
-        lsr
-        jsr     print_hex_digit
-        pla
-        pha
-        and     #$0f
-        jsr     print_hex_digit
-        pla
         rts
 
 ;

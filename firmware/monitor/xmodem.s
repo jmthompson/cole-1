@@ -64,8 +64,9 @@
 
 ; Output a null-terminated string
 .macro  putstr  string
+        lda     #<string
+        ldx     #>string
         jsr     writeln
-        .word   string
 .endmacro
 
 ;-------------------------- The Code ----------------------------
