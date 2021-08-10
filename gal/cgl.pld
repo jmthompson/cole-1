@@ -1,0 +1,17 @@
+GAL22V10
+CGL
+
+PHI2 RWB /UARTIRQ /VIAIRQ A4 NC NC A12 A13 A14 A15 GND
+NC NC /RD /WR /IRQ /UARTSEL /VIASEL /RAMSEL /ROMSEL NC NC VCC
+
+RD      = PHI2 * RWB
+WR      = PHI2 * /RWB
+IRQ     = UARTIRQ + VIAIRQ
+RAMSEL  = /A15
+ROMSEL  = A15 * A12 + A15 * A13 + A15 * A14
+UARTSEL = A15 * /A14 * /A13 * /A12 * /A4
+VIASEL  = A15 * /A14 * /A13 * /A12 * A4
+
+DESCRIPTION
+
+This chip provides the glue logic and address decoding for COLE-1+

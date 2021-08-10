@@ -1,7 +1,9 @@
 *.bak
 *-bak
 *.net
-*.gbr
-*.drl
 *.dsn
-*.zip
+*.ses
+*.rules
+fp-info-cache
+plots/
+rescue-backup/

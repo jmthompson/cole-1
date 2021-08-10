@@ -1,41 +1,5 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:switches
-LIBS:relays
-LIBS:motors
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:65xx
-LIBS:MAX1232
-LIBS:osc
-LIBS:cole-1-cache
-EELAYER 25 0
+EESchema Schematic File Version 4
+EELAYER 30 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
@@ -50,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L 74HCT00 U8
+L cole-1-rescue:74HCT00 U8
 U 3 1 5A45A266
 P 7300 4450
 F 0 "U8" H 7300 4500 50  0000 C CNN
@@ -61,7 +25,7 @@ F 3 "" H 7300 4450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74HCT00 U8
+L cole-1-rescue:74HCT00 U8
 U 4 1 5A45A26D
 P 7300 5250
 F 0 "U8" H 7300 5300 50  0000 C CNN
@@ -72,7 +36,7 @@ F 3 "" H 7300 5250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74LS32 U7
+L cole-1-rescue:74LS32 U7
 U 1 1 5A45A274
 P 4250 4300
 F 0 "U7" H 4250 4350 50  0000 C CNN
@@ -83,7 +47,7 @@ F 3 "" H 4250 4300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74LS32 U7
+L cole-1-rescue:74LS32 U7
 U 2 1 5A45A27B
 P 4250 4800
 F 0 "U7" H 4250 4850 50  0000 C CNN
@@ -94,7 +58,7 @@ F 3 "" H 4250 4800 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74LS32 U7
+L cole-1-rescue:74LS32 U7
 U 3 1 5A45A282
 P 5700 4550
 F 0 "U7" H 5700 4600 50  0000 C CNN
@@ -105,7 +69,7 @@ F 3 "" H 5700 4550 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74HCT04 U6
+L cole-1-rescue:74HCT04 U6
 U 1 1 5A45A289
 P 5850 5150
 F 0 "U6" H 6000 5250 50  0000 C CNN
@@ -115,43 +79,6 @@ F 3 "" H 5850 5150 50  0001 C CNN
 	1    5850 5150
 	1    0    0    -1  
 $EndComp
-$Comp
-L 74HCT00 U8
-U 1 1 5A45AB6F
-P 4950 2400
-F 0 "U8" H 4950 2450 50  0000 C CNN
-F 1 "74HCT00" H 4950 2300 50  0000 C CNN
-F 2 "Housings_DIP:DIP-14_W7.62mm_Socket" H 4950 2400 50  0001 C CNN
-F 3 "" H 4950 2400 50  0001 C CNN
-	1    4950 2400
-	1    0    0    -1  
-$EndComp
-$Comp
-L 74HCT00 U8
-U 2 1 5A45AB76
-P 4950 2850
-F 0 "U8" H 4950 2900 50  0000 C CNN
-F 1 "74HCT00" H 4950 2750 50  0000 C CNN
-F 2 "Housings_DIP:DIP-14_W7.62mm_Socket" H 4950 2850 50  0001 C CNN
-F 3 "" H 4950 2850 50  0001 C CNN
-	2    4950 2850
-	1    0    0    -1  
-$EndComp
-$Comp
-L 74HCT04 U6
-U 2 1 5A45AB7D
-P 3750 2300
-F 0 "U6" H 3900 2400 50  0000 C CNN
-F 1 "74HCT04" H 3950 2200 50  0000 C CNN
-F 2 "Housings_DIP:DIP-14_W7.62mm_Socket" H 3750 2300 50  0001 C CNN
-F 3 "" H 3750 2300 50  0001 C CNN
-	2    3750 2300
-	1    0    0    -1  
-$EndComp
-Text HLabel 2700 2300 0    60   Input ~ 0
-RWB
-Text HLabel 2700 2950 0    60   Input ~ 0
-PHI2
 Text HLabel 2700 3400 0    60   Input ~ 0
 A[0..15]
 Entry Wire Line
@@ -160,14 +87,10 @@ Text Label 3500 3850 0    60   ~ 0
 A15
 Text Label 3500 5350 0    60   ~ 0
 A15
-Text HLabel 8200 2400 2    60   Output ~ 0
-WR
-Text HLabel 8200 2850 2    60   Output ~ 0
-RD
 Text HLabel 8200 4450 2    60   Output ~ 0
 ROMSEL
 $Comp
-L 74LS32 U7
+L cole-1-rescue:74LS32 U7
 U 4 1 5A46187F
 P 1550 6900
 F 0 "U7" H 1550 6950 50  0000 C CNN
@@ -178,7 +101,7 @@ F 3 "" H 1550 6900 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74HCT04 U6
+L cole-1-rescue:74HCT04 U6
 U 6 1 5A46188D
 P 1400 6400
 F 0 "U6" H 1550 6500 50  0000 C CNN
@@ -190,7 +113,7 @@ F 3 "" H 1400 6400 50  0001 C CNN
 $EndComp
 NoConn ~ 1850 6400
 $Comp
-L GND #PWR07
+L cole-1-rescue:GND #PWR07
 U 1 1 5A4618AC
 P 850 7650
 F 0 "#PWR07" H 850 7400 50  0001 C CNN
@@ -220,7 +143,7 @@ A13
 Text Label 3650 4900 2    60   ~ 0
 A14
 $Comp
-L 74LS138 U11
+L cole-1-rescue:74LS138 U11
 U 1 1 5A478976
 P 4250 6900
 F 0 "U11" H 4350 7400 50  0000 C CNN
@@ -243,7 +166,7 @@ Wire Wire Line
 Wire Wire Line
 	4950 4800 4850 4800
 Wire Wire Line
-	6300 4550 6700 4550
+	6300 4550 6500 4550
 Wire Wire Line
 	5400 5150 5250 5150
 Wire Wire Line
@@ -258,27 +181,7 @@ Connection ~ 6500 4550
 Wire Wire Line
 	8200 4450 7900 4450
 Wire Wire Line
-	2700 2950 4350 2950
-Wire Wire Line
-	4350 2500 4200 2500
-Wire Wire Line
-	4200 2500 4200 2950
-Connection ~ 4200 2950
-Wire Wire Line
-	4200 2300 4350 2300
-Wire Wire Line
-	2700 2300 3300 2300
-Wire Wire Line
-	4350 2750 3250 2750
-Wire Wire Line
-	3250 2750 3250 2300
-Connection ~ 3250 2300
-Wire Wire Line
 	7900 5250 8000 5250
-Wire Wire Line
-	5550 2400 8200 2400
-Wire Wire Line
-	5550 2850 8200 2850
 Wire Wire Line
 	6700 5350 3400 5350
 Wire Wire Line
@@ -288,11 +191,9 @@ Wire Wire Line
 Wire Wire Line
 	6100 3850 3400 3850
 Wire Bus Line
-	3300 3400 3300 6650
-Wire Bus Line
 	3300 3400 2700 3400
 Wire Wire Line
-	850  6400 850  7650
+	850  6400 850  6800
 Wire Wire Line
 	950  6800 850  6800
 Wire Wire Line
@@ -336,7 +237,7 @@ A5
 Text Label 3500 6750 0    60   ~ 0
 A6
 $Comp
-L GND #PWR08
+L cole-1-rescue:GND #PWR08
 U 1 1 5A479316
 P 3150 7500
 F 0 "#PWR08" H 3150 7250 50  0001 C CNN
@@ -351,7 +252,7 @@ Wire Wire Line
 Wire Wire Line
 	3150 7150 3150 7500
 $Comp
-L VCC #PWR09
+L cole-1-rescue:VCC #PWR09
 U 1 1 5A4793D6
 P 3150 6850
 F 0 "#PWR09" H 3150 6700 50  0001 C CNN
@@ -379,8 +280,6 @@ Text HLabel 8250 6000 2    60   Output ~ 0
 IOSEL[0..1]
 Wire Bus Line
 	8250 6000 5250 6000
-Wire Bus Line
-	5250 6000 5250 6550
 Entry Wire Line
 	5150 6550 5250 6450
 Entry Wire Line
@@ -389,4 +288,14 @@ Text Label 4850 6550 0    60   ~ 0
 IOSEL0
 Text Label 4850 6650 0    60   ~ 0
 IOSEL1
+Wire Wire Line
+	6500 4550 6700 4550
+Wire Wire Line
+	850  7000 850  7650
+Wire Wire Line
+	850  6800 850  7000
+Wire Bus Line
+	5250 6000 5250 6550
+Wire Bus Line
+	3300 3400 3300 6650
 $EndSCHEMATC
