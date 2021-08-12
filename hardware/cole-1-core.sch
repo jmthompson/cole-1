@@ -522,28 +522,28 @@ Wire Wire Line
 Text GLabel 9550 1500 2    50   Input ~ 0
 ~IRQ
 Wire Wire Line
-	8300 1500 8050 1500
-Text GLabel 8050 1500 0    50   Input ~ 0
+	8300 1400 8050 1400
+Text GLabel 8050 1400 0    50   Input ~ 0
 ~VIAIRQ
 Wire Wire Line
-	8300 1400 7750 1400
-Text GLabel 7750 1400 0    50   Input ~ 0
+	8300 1300 7750 1300
+Text GLabel 7750 1300 0    50   Input ~ 0
 ~UARTIRQ
 Wire Wire Line
-	8300 1300 8050 1300
-Text GLabel 8050 1300 0    50   Input ~ 0
+	8300 1200 8050 1200
+Text GLabel 8050 1200 0    50   Input ~ 0
 R~W
-Text GLabel 8300 1200 0    50   Input ~ 0
+Text GLabel 8300 1100 0    50   Input ~ 0
 PHI2
-Text GLabel 8300 2000 0    50   Input ~ 0
+Text GLabel 8300 2100 0    50   Input ~ 0
 A15
-Text GLabel 8300 1900 0    50   Input ~ 0
+Text GLabel 8300 2000 0    50   Input ~ 0
 A14
-Text GLabel 8300 1800 0    50   Input ~ 0
+Text GLabel 8300 1900 0    50   Input ~ 0
 A13
-Text GLabel 8300 1700 0    50   Input ~ 0
+Text GLabel 8300 1800 0    50   Input ~ 0
 A12
-Text GLabel 8300 1600 0    50   Input ~ 0
+Text GLabel 8300 1500 0    50   Input ~ 0
 A4
 $Comp
 L gal:CGL U8
@@ -887,4 +887,8 @@ Wire Wire Line
 Connection ~ 8200 3300
 Wire Wire Line
 	8200 3300 8200 3400
+Text GLabel 8300 1600 0    50   Input ~ 0
+A10
+Text GLabel 8300 1700 0    50   Input ~ 0
+A11
 $EndSCHEMATC
