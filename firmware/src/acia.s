@@ -1,14 +1,16 @@
 ; *******************************
-; *  COLE-1 65c02 SBC Firmware  *
-; * (C) 2018 Joshua M. Thompson *
+; *  COLE-1 65816 SBC Firmware  *
+; * (C) 2021 Joshua M. Thompson *
 ; *******************************
 
-        .setcpu "65C02"
+        .setcpu "65816"
+        .a8
+        .i8
 
-        .export serial_init
-        .export serial_irq
-        .export serial_read
-        .export serial_write
+        .export acia_init
+        .export acia_irq
+        .export acia_read
+        .export acia_write
 
 buffer_size = 256
 max_unread  = buffer_size - 16
@@ -21,20 +23,20 @@ acia_ctrl   := $8000
 acia_status := acia_ctrl
 acia_data   := $8001
 
-        .segment "DATA"
+        .segment "BUFFERS"
 
-; serial rx buffer
-
-serial_buffer:
+acia_buffer:
         .res    buffer_size
+
+        .segment "ZEROPAGE"
 rx_rd_idx:
         .res   1
 rx_wr_idx:
         .res   1
 
-        .segment "CODE"
+        .segment "LOWROM"
 
-serial_init:
+acia_init:
         stz     rx_rd_idx
         stz     rx_wr_idx
 
@@ -42,15 +44,16 @@ serial_init:
         sta     acia_ctrl
         lda     #CMD_8N1_DIV64
         sta     acia_ctrl
+
         rts
 
-serial_irq:
+acia_irq:
         lda     acia_status
         and     #%00000001          ; Rx full or overrun
         beq     @exit
         ldx     rx_wr_idx
         lda     acia_data
-        sta     serial_buffer,x
+        sta     acia_buffer,x
         inx
         stx     rx_wr_idx
         txa
@@ -64,13 +67,13 @@ serial_irq:
 
 @exit:  rts
 
-serial_read:
+acia_read:
         lda     rx_rd_idx
         cmp     rx_wr_idx
         beq     @empty
         phx
         tax
-        lda     serial_buffer,X
+        lda     acia_buffer,X
         inx
         stx     rx_rd_idx
         pha
@@ -87,27 +90,17 @@ serial_read:
 @exit:  pla
         plx
         cmp     #0      ; set zero flag
-        clc
-        rts
+        sec
+        rtl
 
-@empty: sec
-        rts
+@empty: clc
+        rtl
 
-serial_write:
-        pha
-        phx
-        ldx     #0
-@wait:  dex
-        beq     @error
-        lda     acia_status
+acia_write:
+        xba
+@wait:  lda     acia_status
         and     #%00000010
         beq     @wait
-        plx
-        pla
+        xba
         sta     acia_data
-        clc
-        rts
-@error: plx
-        pla
-        sec
-        rts
+        rtl

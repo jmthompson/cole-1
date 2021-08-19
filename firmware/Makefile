@@ -1,30 +1,43 @@
+ROM_VERSION := 05
+HW_REVISION := 01
+
 AS := ca65
 LD := ld65
 
-SRCS     := $(wildcard */*.s) version.s
+SRCS     := $(wildcard src/*.s) buildinfo.s
 OBJS   	 := ${SRCS:.s=.o}
 LISTINGS := ${SRCS:.s=.l}
 ROMFILE  := rom.bin
+DUMPFILE := dump.bin
 RAMFILE  := ram.bin
 MAPFILE  := cole-1.map
+
+CHIP     := AT28C256
 
 ${ROMFILE}: ${OBJS}
 	${LD} ${OBJS} -o ${ROMFILE} -C cole-1.cfg -m ${MAPFILE}
 
 all: ${ROMFILE}
 
-burn: ${ROMFILE}
-	minipro -p AT28C256 -w ${ROMFILE}
+dump:
+	minipro -p ${CHIP} -r ${DUMPFILE}
+
+prog: ${ROMFILE}
+	minipro -p ${CHIP} -w ${ROMFILE}
 
 clean:
-	rm -f ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
+	rm -f buildinfo.s ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
 
-version.s:
-	echo ".segment \"CODE\"" > version.s
-	echo ".export rom_version" >> version.s
-	date "+rom_version: .byte \"%Y%m%d\",0" >> version.s
+buildinfo.s:
+	echo ".segment \"LOWROM\"" > buildinfo.s
+	echo ".export hw_revision" >> buildinfo.s
+	echo ".export rom_version" >> buildinfo.s
+	echo ".export rom_date" >> buildinfo.s
+	echo "hw_revision: .byte \$$${HW_REVISION}" >> buildinfo.s
+	echo "rom_version: .byte \$$${ROM_VERSION}" >> buildinfo.s
+	date "+rom_date: .byte \"%Y-%m-%d\",0" >> buildinfo.s
 
-.s.o:
-	${AS} -I ./ --listing ${<:.s=.l} $<
+%.o: %.s
+	${AS} -I ./include --listing ${<:.s=.l} $<
 
-.PHONY: version.s
+.PHONY: dump buildinfo.s

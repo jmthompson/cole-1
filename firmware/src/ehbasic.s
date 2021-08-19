@@ -18,8 +18,7 @@
 ; 2.21	fixed IF .. THEN RETURN to not cause error
 ; 2.22	fixed RND() breaking the get byte routine
 
-            .setcpu "65C02"
-            .segment "CODE"
+            .include "common.s"
 
             .export LAB_COLD
 
@@ -30,6 +29,8 @@
             .import console_write
 
             ; zero page use ..
+
+            .segment "ZEROPAGE"
 
 Usrjmp    := $0A		; USR function JMP address
 Usrjpl    := Usrjmp+1	; USR function JMP vector low byte
@@ -437,11 +438,15 @@ VEC_SV		= VEC_LD+2	; save vector
 ;VEC_LD		= VEC_OUT+2	; load vector
 
 ; Ibuffs can now be anywhere in RAM, ensure that the max length is < $80
-Ibuffs  = $0380     ; start of input buffer
-Ibuffe  = $03DF     ; end of input buffer
+        .segment "BUFFERS"
+
+IBUFF_SZ = 128
+Ibuffs:  .res  IBUFF_SZ
 
 Ram_base = __USRRAM_START__    ; start of user RAM (set as needed, should be page aligned)
 Ram_top  = __USRRAM_START__ + __USRRAM_SIZE__ ; end of user RAM+1 (set as needed, should be page aligned)
+
+        .segment "HIGHROM"
 
 ; BASIC cold start entry point
 
@@ -532,7 +537,7 @@ LAB_2E05:
         SEC                 ; set carry for subtract
         SBC    Smeml        ; subtract start of mem low byte
         TAX                 ; copy to X
-        LDA    Ememh        ; get end of mem high byte
+        LDA    Ememh        ; get end of mem high byteB_
         SBC    Smemh        ; subtract start of mem high byte
         JSR    LAB_295E     ; print XA as unsigned integer (bytes free)
         LDA    #<LAB_BYTES_FREE
@@ -716,9 +721,9 @@ LAB_1274:
 LAB_127D:
         JSR LAB_CRLF
         LDA #']'
-        JSR V_OUTP          ; Display the prompt
+        COP $02
         LDA #' '
-        JSR V_OUTP
+        COP $02
 	    JSR	LAB_1357		; call for BASIC input
 LAB_1280:
 	STX	Bpntrl		; set BASIC execute pointer low byte
@@ -896,7 +901,7 @@ LAB_134B:
 LAB_1357:
 	LDX	#$00			; clear BASIC line buffer pointer
 LAB_1359:
-	JSR	V_INPT		; call scan input device
+	COP $01            ; call scan input device
 	BCS	LAB_1359		; loop if no byte
 
 	BEQ	LAB_1359		; loop until valid input (ignore NULLs)
@@ -920,7 +925,7 @@ LAB_1374:
 	BEQ	LAB_134B		; go delete last character
 
 LAB_1378:
-	CPX	#Ibuffe-Ibuffs	; compare character count with max
+	CPX	#IBUFF_SZ-1     ; compare character count with max
 	BCS	LAB_138E		; skip store and do [BELL] if buffer full
 
 	STA	Ibuffs,X		; else store in buffer
@@ -2440,7 +2445,7 @@ LAB_18F7:
 	INC	TPos			; increment terminal position
 	PLA				; get character back
 LAB_18F9:
-	JSR	V_OUTP		; output byte via output vector
+    COP $02
 	CMP	#$0D			; compare with [CR]
 	BNE	LAB_188A		; branch if not [CR]
 
@@ -7156,7 +7161,7 @@ CTRLC:
 	LDA	ccflag		; get [CTRL-C] check flag
 	BNE	LAB_FBA2		; exit if inhibited
 
-	JSR	V_INPT		; scan input device
+	COP $01		; scan input device
 	BCS	LAB_FBA0		; exit if buffer empty
 
 	STA	ccbyte		; save received byte
@@ -7225,7 +7230,7 @@ LAB_CKIN:
 ; returns with carry set if byte in A
 
 INGET:
-	JSR	V_INPT		; call scan input device
+	COP $01		; call scan input device
 	BCS	LAB_FB95		; if byte go reset timer
 
 	LDA	ccnull		; get countdown
@@ -7645,8 +7650,6 @@ LAB_TWOPI:
         JMP LAB_UFAC    ; unpack memory (AY) into FAC1 and return
 
 ; system dependant i/o vectors
-V_INPT  = console_read
-V_OUTP  = console_write
 V_LOAD:
         JMP (VEC_LD)    ; load BASIC program
 V_SAVE:

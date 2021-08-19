@@ -1,22 +1,19 @@
 ; *******************************
-; *  COLE-1 65c02 SBC Firmware  *
-; * (C) 2018 Joshua M. Thompson *
+; *  COLE-1 65816 SBC Firmware  *
+; * (C) 2021 Joshua M. Thompson *
 ; *******************************
 
-        .setcpu "65C02"
+        .include "common.s"
 
         .export via_init
         .export via_irq
-        .export get_jiffies
         .export wait_ms
         .export spi_select
         .export spi_deselect
         .export spi_transfer
 
-        .include "macros.inc"
-
 ; Phi2 clock rate (Hz)
-phi2_clock  = 4000000
+phi2_clock  = 3686400
 ; Desired jiffy timer rate (Hz)
 jiffy_clock = 100
 ; Timer1 value
@@ -49,16 +46,15 @@ via1_portax := $801f
         .segment "ZEROPAGE"
 
 spi_byte:   .res    1
+jiffies:    .res    4
 
-        .segment "DATA"
-
-jiffies:    .res    2
-
-        .segment "CODE"
+        .segment "LOWROM"
 
 via_init:
+        rep     #$30
         stz     jiffies
-        stz     jiffies+1
+        stz     jiffies+2
+        sep     #$30
 
         stz     via1_ddra
         lda     #PORTB_EN|PORTB_SS|PORTB_MOSI|PORTB_SCLK
@@ -68,32 +64,26 @@ via_init:
         stz     via1_portb
         stz     via1_acr
 
-        lda     #$c0
-        sta     via1_ier            ; Enable timer1 interrupt
+;        lda     #$c0
+;        sta     via1_ier            ; Enable timer1 interrupt
 
-        lda     via1_acr
-        ora     #$40                ; Enable timer1 free-run mode
-        sta     via1_acr
+;        lda     via1_acr
+;        ora     #$40                ; Enable timer1 free-run mode
+;        sta     via1_acr
 
-        lda     #<jiffy_timer       ; Load jiffy timer and start counting
-        sta     via1_t1cl
-        lda     #>jiffy_timer
-        sta     via1_t1ch
+;        lda     #<jiffy_timer       ; Load jiffy timer and start counting
+;        sta     via1_t1cl
+;        lda     #>jiffy_timer
+;        sta     via1_t1ch
 
         rts
 
 via_irq:
         lda     via1_ifr
         bpl     @exit
-
         bit     via1_t1cl   ; clear the interrupt
-        inc16   jiffies
+        inc32   jiffies
 @exit:  rts
-
-get_jiffies:
-        lda     jiffies
-        ldy     jiffies+1
-        rts
 
 ; Wait up to 15ms (assuming 4MHz phi2 clock), with about 3% error because
 ; we use a x4096 multiplier instead of x4000.
