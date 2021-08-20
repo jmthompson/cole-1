@@ -64,7 +64,7 @@ ibuff:      .res   256
 commands:
         .byte   'l'
         .byte   'm'
-        .byte   'r'
+        .byte   'g'
         .byte   'q'
         .byte   '<'
         .byte   '>'

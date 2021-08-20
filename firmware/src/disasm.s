@@ -33,6 +33,9 @@ len:    .res    1
 
         .segment "HIGHROM"
 
+PREG_M  = $20
+PREG_X  = $10
+
 ;;
 ; Entry point for the monitor's (L)ist command
 ;;
@@ -57,6 +60,7 @@ print_instruction:
         tax
         lda     f:opcode_table,x
         sta     opcode
+        jsr     update_widths
         lda     f:am_table,x
         sta     am
         cmp     #AM_immediate_m
@@ -122,6 +126,54 @@ print_instruction:
 
         rts
 
+;; Update M/X widths based on current opcode
+;
+; On entry:
+;
+; A = opcode
+;
+; On exit:
+;
+; A/Y trashed
+; mwidth, xwidth possibly updated
+;;
+update_widths:
+        cmp     #OP_REP
+        beq     @rep
+        cmp     #OP_SEP
+        beq     @sep
+        cmp     #OP_XCE
+        beq     @xce
+        rts
+
+@rep:   ldy     #1
+        lda     [instr],y
+        iny
+        iny
+        bit     #PREG_M
+        beq     @rep2
+        sty     mwidth
+@rep2:  bit     #PREG_X
+        beq     @rep3
+        sty     xwidth
+@rep3:  rts
+
+@sep:   ldy     #1
+        lda     [instr],y
+        iny
+        bit     #PREG_M
+        beq     @sep2
+        sty     mwidth
+@sep2:  bit     #PREG_X
+        beq     @sep3
+        sty     xwidth
+@sep3:  rts
+
+@xce:   lda     #2
+        sta     mwidth
+        sta     xwidth
+        rts
+        
 ;;
 ; Print the immediate mode operand
 ;
