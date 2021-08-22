@@ -6,8 +6,8 @@ $8000 - $800F : 6850 ACIA
 $8010 - $801F : 6522 VIA
 $8020 - $87FF : unused I/O space
 $8000 - $9000 : Reserved ROM space
-$9000 - $9FFF : OS LOWROM
-$A000 - $FFFF : OS HIGHROM
+$9000 - $EFFF : BIOS ROM
+$F000 - $FFFF : BOOT ROM
 
 Note that EhBASIC is considered an application and makes use of all of the
 "reserved for application use" areas.
