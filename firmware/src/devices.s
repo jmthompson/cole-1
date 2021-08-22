@@ -6,6 +6,9 @@
         .include "common.s"
         .include "sys/io.s"
 
+        .importzp   ptr
+        .importzp   current_device
+
         .export device_manager_init
         .export install_device
         .export remove_device
@@ -17,16 +20,9 @@ MAX_DEVICES = 64
 
         .segment "SYSDATA": far
 
-devices: .res MAX_DEVICES * 4
-num_devices: .res 1
-
-ptmp:   .res 4        ; for saving stuff from the syscall DP
-
-        .segment "ZEROPAGE"
-
-ptr:    .res 4
-current_device: 
-        .res 4
+devices:        .res MAX_DEVICES * 4
+num_devices:    .res 1
+ptmp:           .res 4        ; for saving stuff from the syscall DP
 
         .segment "BIOSROM"
 

@@ -5,6 +5,9 @@
 
         .include "common.s"
 
+        .importzp   spi_byte
+        .importzp   jiffies
+
         .export via_init
         .export via_irq
         .export wait_ms
@@ -42,11 +45,6 @@ via1_pcr    := $801c
 via1_ifr    := $801d
 via1_ier    := $801e
 via1_portax := $801f
-
-        .segment "ZEROPAGE"
-
-spi_byte:   .res    1
-jiffies:    .res    4
 
         .segment "BOOTROM"
 

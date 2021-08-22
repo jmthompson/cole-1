@@ -16,20 +16,17 @@
         .import mnemonic_table
         .import print_spaces
 
-        .importzp start_loc
+        .importzp   start_loc
+        .importzp   tmp
+        .importzp   mwidth
+        .importzp   xwidth
+        .importzp   opcode
+        .importzp   am
+        .importzp   len
 
         .export disassemble
 
 instr = start_loc
-
-        .segment "ZEROPAGE"
-
-tmp:    .res    1
-mwidth: .res    1
-xwidth: .res    1
-opcode: .res    1
-am:     .res    1
-len:    .res    1
 
         .segment "BIOSROM"
 

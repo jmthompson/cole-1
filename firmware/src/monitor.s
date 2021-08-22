@@ -11,17 +11,21 @@
         .import XModemRcv
         .import flash_update
 
-        .importzp xmptr
-        .importzp xmeofp
+        .importzp   cmd
+        .importzp   arg
+        .importzp   address
+        .importzp   start_loc
+        .importzp   end_loc
+        .importzp   row_end
+        .importzp   ibuffp
+        .importzp   xmptr
+        .importzp   xmeofp
 
         .export monitor_start
         .export monitor_brk
         .export monitor_nmi
 
         .export print_spaces
-
-        .exportzp start_loc
-        .exportzp end_loc
 
 ; Get a single character
 .macro  getc
@@ -33,17 +37,7 @@
         inc      ibuffp
 .endmacro
 
-        .segment "ZEROPAGE"
-
 maxhex  = 8
-
-cmd:        .res    1
-arg:        .res    4
-address:    .res    3
-start_loc:  .res    3
-end_loc:    .res    3
-row_end:    .res    1
-ibuffp:     .res    3
 
         .segment "SYSDATA": far
 

@@ -7,6 +7,9 @@
         .a8
         .i8
 
+        .importzp   rx_rd_idx
+        .importzp   rx_wr_idx
+
         .export acia_init
         .export acia_irq
         .export acia_read
@@ -27,13 +30,6 @@ acia_data   := $8001
 
 acia_buffer:
         .res    buffer_size
-
-        .segment "ZEROPAGE"
-
-rx_rd_idx:
-        .res   1
-rx_wr_idx:
-        .res   1
 
         .segment "BOOTROM"
 
