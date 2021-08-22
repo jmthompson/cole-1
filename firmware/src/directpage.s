@@ -10,6 +10,7 @@
 ; specific routine and could be consolidated to save space.
 ;;
 
+        .exportzp   param
         .exportzp   ptr
         .exportzp   tmp
         .exportzp   rx_rd_idx
@@ -38,6 +39,9 @@
         .exportzp   retry
 
         .segment "ZEROPAGE"
+
+; API call parameter
+param:          .res    4
 
 ; Generic temp locations, used lots of places. VERY temporary!
 ptr:            .res    4

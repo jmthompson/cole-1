@@ -40,10 +40,11 @@
         .import __SYSSTACK_START__
         .import __SYSSTACK_SIZE__
 
-        ;; from buildinfo.s
         .import hw_revision
         .import rom_version
         .import rom_date
+
+        .importzp   param
 
 STACKTOP    = __SYSSTACK_START__ + __SYSSTACK_SIZE__ - 1
 
@@ -160,16 +161,10 @@ startup_banner:
 @romver2: .byte "  ", SHIFT_OUT, "x", SHIFT_IN, CR, 0
 
 read_seriala:
-        set_kernel_dp
-        jsl     acia_read
-        pld
-        rtl
+        jml     acia_read
 
 write_seriala:
-        set_kernel_dp
-        jsl     acia_write
-        pld
-        rtl
+        jml     acia_write
 
 read_serialb:
         rtl
@@ -221,6 +216,7 @@ syscall_dispatch:
 @pc_reg  := @p_reg  + 1         ; PC
 @pb_reg  := @pc_reg + 2         ; PB
 @cop_size := @pb_reg + 1 - @p_reg
+@param   := @pb_reg + 1
 
 ; Start of parameters passed by caller
 @params  := @pb_reg + 1
@@ -279,12 +275,19 @@ syscall_dispatch:
         lda     f:syscall_table,x       ; Bank address of handler
         sta     syscall_trampoline+1
         phd                             ; save our DP for after dispatch
+
         lda     @a_reg                  ; Grab A; it might be a parameter
-        pha                             ; save it while we switch direct pages
-        tdc
-        clc
-        adcw    #@sc_size+@cop_size
+        pha
+        ldaw    @param
+        pha
+        ldaw    @param+2
+        pha
+        ldaw    #BIOS_DP
         tcd
+        pla
+        sta     param+2
+        pla
+        sta     param
         pla                             ; restore A from caller
 
         shortmx

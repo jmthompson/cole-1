@@ -19,6 +19,8 @@
         .import acia_read
         .import vt100_write
 
+        .importzp   param
+
 .macro  set_vector  vector, address
         lda     #$5C    ; JML
         sta     vector
@@ -48,30 +50,20 @@ console_attach:
 @cont:  jml     console_reset
 
 console_reset:
-        set_kernel_dp
-        jsl     reset_vec
-        pld
-        rtl
+        jml     reset_vec
 ;;
 ; Try to read a character from the console. If data is availble,
 ; returns the char in A and carry is set. Otherwise, returns with
 ; carry clear.
 ;
 console_read:
-        set_kernel_dp
-        jsl     read_vec
-        pld
-        rtl
+        jml     read_vec
 
 ;;
 ; Interactively read a line of text from the console into the given input
 ; buffer.
 ;
 console_readln:
-
-; Parameters
-@buffer = $01
-
         ldy     #0
 @loop:  jsl     console_read
         bcc     @loop
@@ -83,13 +75,13 @@ console_readln:
         beq     @cls
         cmp     #' '
         bcc     @loop
-        sta     [@buffer],y
+        sta     [param],y
         jsl     console_write 
         iny
         bne     @loop
         dey
 @eol:   lda     #0
-        sta     [@buffer],y
+        sta     [param],y
         rtl
 @bs:    cpy     #0
         beq     @loop
@@ -103,23 +95,16 @@ console_readln:
 ; Output character in A to the console
 ;
 console_write:
-        set_kernel_dp
-        jsl     write_vec
-        pld
-        rtl
+        jml     write_vec
 
 ;;
 ; Print a null-terminated string up to 255 characters in length.
 ;
 console_writeln:
-
-; Parameters
-@str = $01
-
         ldy     #0
-@loop:  lda     [@str],y
+@loop:  lda     [param],y
         beq     @exit
-        jsl     console_write
+        jsl     write_vec
         iny
         bne     @loop
 @exit:  rtl
