@@ -58,7 +58,7 @@ SHIFT_IN    = 15
 
 syscall_trampoline: .res 4
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 ;;
 ; Print the 8-bit number in the accumulator in decimal
@@ -199,7 +199,7 @@ syscall_table:
 
 syscall_max = (*-syscall_table)/4
 
-        .segment "LOWROM"
+        .segment "BOOTROM"
 
 ;;
 ; COP handler; dispatches to the syscall indicated by the signature byte
@@ -328,6 +328,8 @@ sysreset:
         cld
         clc
         xce
+
+        shortx
 
         longm
         ldaw    #BIOS_DP

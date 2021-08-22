@@ -36,7 +36,7 @@ reset_vec:  .res 4
 read_vec:   .res 4
 write_vec:  .res 4
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 console_init:
         jml     console_attach

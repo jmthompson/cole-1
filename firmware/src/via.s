@@ -48,7 +48,7 @@ via1_portax := $801f
 spi_byte:   .res    1
 jiffies:    .res    4
 
-        .segment "LOWROM"
+        .segment "BOOTROM"
 
 via_init:
         rep     #$30
@@ -64,17 +64,17 @@ via_init:
         stz     via1_portb
         stz     via1_acr
 
-;        lda     #$c0
-;        sta     via1_ier            ; Enable timer1 interrupt
+        lda     #$c0
+        sta     via1_ier            ; Enable timer1 interrupt
 
-;        lda     via1_acr
-;        ora     #$40                ; Enable timer1 free-run mode
-;        sta     via1_acr
+        lda     via1_acr
+        ora     #$40                ; Enable timer1 free-run mode
+        sta     via1_acr
 
-;        lda     #<jiffy_timer       ; Load jiffy timer and start counting
-;        sta     via1_t1cl
-;        lda     #>jiffy_timer
-;        sta     via1_t1ch
+        lda     #<jiffy_timer       ; Load jiffy timer and start counting
+        sta     via1_t1cl
+        lda     #>jiffy_timer
+        sta     via1_t1ch
 
         rts
 

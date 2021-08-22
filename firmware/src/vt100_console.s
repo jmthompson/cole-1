@@ -12,7 +12,7 @@
         .import getc_seriala
         .import acia_write
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 BELL     =  $07
 LBRACKET =  '['

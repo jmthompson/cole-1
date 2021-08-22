@@ -31,7 +31,7 @@ opcode: .res    1
 am:     .res    1
 len:    .res    1
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 PREG_M  = $20
 PREG_X  = $10

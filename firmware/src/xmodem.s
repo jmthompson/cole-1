@@ -69,14 +69,10 @@
 lastblk: .res   1   ; flag for last block
 blkno:  .res    1   ; block number 
 errcnt: .res    1   ; error counter 10 is the limit
-
 crc:    .res    2   ; CRC
-
 xmptr:  .res    3   ; data pointer (two byte variable)
 xmeofp: .res    3   ; end of file address pointer (2 bytes)
-
-retry:  .res    1   ; retry counter 
-retry2: .res    1   ; 2nd counter 
+retry:  .res    2   ; retry counter 
 
 ;
 ;
@@ -88,7 +84,7 @@ retry2: .res    1   ; 2nd counter
 
 Rbuff:  .res    132
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 ;
 ;^^^^^^^^^^^^^^^^^^^^^^ Start of Program ^^^^^^^^^^^^^^^^^^^^^^
 ;
@@ -101,23 +97,20 @@ Rbuff:  .res    132
 ; pointed to by xmptr and the ending address stored in the zero page address
 ; pointed to by xmeofp & xmeofph.
 ;
-;
-;
 XModemSend:
-        jsr     PrintMsg    ; send prompt and info
+        puts    start_msg
         stz     errcnt      ; error counter set to 0
         stz     lastblk     ; set flag to false
         lda     #$01
         sta     blkno       ; set block # to 1
 @wait4crc:
-        lda     #$ff        ; 3 seconds
-        sta     retry2
+        jsr     set_retry
         call    SYS_CONSOLE_READ
         bcc     @noesc
         cmp     #ESC        ; Did someone hit ESC on the console?
         bne     @noesc
         jmp     @prtabort   ; Abort the transfer
-@noesc: jsr     GetByte     ; Otherwise check the serial port
+@noesc: jsr     get_byte     ; Otherwise check the serial port
         bcc     @wait4crc   ; wait for something to come in...
         cmp     #'C'        ; is it the "C" to start a CRC xfer?
         beq     @ldbuffer
@@ -164,7 +157,7 @@ XModemSend:
         cpx     #$82        ; last byte in block?
         bne     @ldbuff1    ; no, get the next
 @calc_crc:
-        jsr     CalcCRC
+        jsr     calc_crc
         lda     crc+1       ; save Hi byte of CRC to buffer
         sta     Rbuff,Y
         iny
@@ -179,9 +172,8 @@ XModemSend:
         inx
         cpx     #$84        ; last byte?
         bne     @sendblk    ; no, get next
-        lda     #$FF        ; yes, set 3 second delay 
-        sta     retry2      ; and
-        jsr     GetByte     ; Wait for Ack/Nack
+        jsr     set_retry
+        jsr     get_byte    ; Wait for Ack/Nack
         bcc     @seterror   ; No chr received after 3 seconds, resend
         cmp     #ACK        ; Chr received... is it:
         beq     @ldbuffer   ; ACK, send next block
@@ -196,28 +188,30 @@ XModemSend:
         cmp     #$0A        ; are there 10 errors? (Xmodem spec for failure)
         bne     @resend     ; no, resend block
 @prtabort:
-        jsr     Flush       ; yes, too many errors, flush buffer,
-        jmp     Print_Err   ; print error msg and exit
-@done:  Jmp     Print_Good  ; All Done..Print msg and exit
+        jsr     flush       ; yes, too many errors, flush buffer,
+        puts    failure_msg
+        sec
+        rts
+@done:  jsr     success_msg
+        clc
+        rts
 
 ;
 ;
 ;
 XModemRcv:
-        jsr     PrintMsg    ; send prompt and info
+        puts    start_msg
         lda     #$01
         sta     blkno       ; set block # to 1
 @startcrc:
         putc_ser #'C'       ; "C" start with CRC mode
-        lda     #$FF    
-        sta     retry2      ; set loop counter for ~3 sec delay
-        jsr     GetByte     ; wait for input
+        jsr     set_retry
+        jsr     get_byte    ; wait for input
         bcs     @gotbyte    ; byte received, process it
         bra     @startcrc   ; resend "C"
 @startblk:
-        lda     #$FF
-        sta     retry2      ; set loop counter for ~3 sec delay
-        jsr     GetByte     ; get first byte of block
+        jsr     set_retry
+        jsr     get_byte    ; get first byte of block
         bcc     @startblk   ; timed out, keep waiting...
 @gotbyte:
         cmp     #ESC        ; quitting?
@@ -232,10 +226,9 @@ XModemRcv:
 @begin:
         ldx     #$00
 @getblk:
-        lda     #$ff        ; 3 sec window to receive characters
-        sta     retry2
+        jsr     set_retry
 @getblk1:
-        jsr     GetByte     ; get next character
+        jsr     get_byte     ; get next character
         bcc     @bad
 @getblk2:
         sta     Rbuff,X     ; good char, save it in the rcv buffer
@@ -246,19 +239,21 @@ XModemRcv:
         lda     Rbuff,X     ; get block # from buffer
         cmp     blkno       ; compare to expected block #    
         beq     @goodblk1   ; matched!
-        jsr     Print_Err   ; Unexpected block number - abort    
-        jsr     Flush       ; mismatched - flush buffer and then do BRK
+        puts    failure_msg ; Unexpected block number - abort    
+        jsr     flush       ; mismatched - flush buffer and then do BRK
+        sec
         rts                 ; abort, return to caller
 @goodblk1:
         eor     #$ff        ; 1's comp of block #
         inx
         cmp     Rbuff,X     ; compare with expected 1's comp of block #
         beq     @goodblk2   ; matched!
-        jsr     Print_Err   ; Unexpected block number - abort    
-        jsr     Flush       ; mismatched - flush buffer and then do BRK
+        puts    failure_msg ; Unexpected block number - abort    
+        jsr     flush       ; mismatched - flush buffer and then do BRK
+        sec
         rts
 @goodblk2:
-        jsr     CalcCRC     ; calc CRC
+        jsr     calc_crc     ; calc CRC
         lda     Rbuff,Y     ; get hi CRC from buffer
         cmp     crc+1       ; compare to calculated hi CRC
         bne     @bad        ; bad crc, send NAK
@@ -266,7 +261,7 @@ XModemRcv:
         lda     Rbuff,Y     ; get lo CRC from buffer
         cmp     crc         ; compare to calculated lo CRC
         beq     @good       ; good CRC
-@bad:   jsr     Flush       ; flush the input buffer
+@bad:   jsr     flush       ; flush the input buffer
         putc_ser #NAK       ; send NAK to resend block
         jmp     @startblk   ; start over, get the block again            
 @good:  ldy     #$00        ; set offset to zero
@@ -285,8 +280,9 @@ XModemRcv:
         putc_ser #ACK       ; send ACK
         jmp     @startblk   ; get next block
 @done:  putc_ser #ACK       ; last block, send ACK and exit.
-        jsr     Flush       ; get leftover characters, if any
-        jsr     Print_Good  ;
+        jsr     flush       ; get leftover characters, if any
+        puts    success_msg
+        clc
         rts
 
 ;=========================================================================
@@ -294,49 +290,44 @@ XModemRcv:
 ; subroutines
 ;
 
+set_retry:
+        longm
+        ldaw    #$FF00
+        sta     retry
+        shortm
+        rts
+
 ; wait for chr input and cycle timing loop
-GetByte:
-        stz     retry       ; set low value of timing loop
+get_byte:
 @loop:  getc_ser            ; get chr from serial port, don't wait 
         bcs     @ok         ; got one, so exit
+        longm
         dec     retry       ; no character received, so dec counter
+        shortm
         bne     @loop
-        dec     retry2      ; dec hi byte of counter
-        bne     @loop       ; look for character again
         clc                 ; if loop times out, CLC, else SEC and return
 @ok:    rts                 ; with character in "A"
 
 ;
-Flush:
-        lda     #$70        ; flush receive buffer
-        sta     retry2      ; flush until empty for ~1 sec.
+flush:
         getc_ser
-        bcs     Flush       ; if chr recvd, wait for another
+        bcs     flush       ; if chr recvd, wait for another
         rts                 ; else done
 
-;
-PrintMsg:
-        puts    @msg
-        rts
-@msg:   .byte   "Begin XMODEM/CRC transfer.  Press <Esc> to abort...", $0d, $00
+start_msg:
+        .byte   "Begin XMODEM/CRC transfer now, or press ESC to abort.", $0d, $00
 
-;
-Print_Err:
-        puts    @msg
-        rts
-@msg:   .byte   "Transfer Error!", $0d, 00
+success_msg:
+        .byte   EOT,CR,EOT,CR,EOT,CR,CR
+        .byte   "Transfer successful.", $0d, 00
 
-;
-Print_Good:
-        puts    @msg
-        rts
-@msg:   .byte   EOT,CR,EOT,CR,EOT,CR,CR
-        .byte   "Transfer Successful!", $0d, 00
+failure_msg:
+        .byte   "Transfer failed.", $0d, 00
 
 ;;
 ; Calculate block CRC
 ;
-CalcCRC:
+calc_crc:
         stz     crc
         stz     crc+1
         ldy     #$02

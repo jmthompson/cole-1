@@ -9,6 +9,7 @@
         .import disassemble
         .import XModemSend
         .import XModemRcv
+        .import flash_update
 
         .importzp xmptr
         .importzp xmeofp
@@ -59,13 +60,14 @@ sr_reg:     .res    1
             .align 256
 ibuff:      .res   256
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 commands:
         .byte   'l'
         .byte   'm'
         .byte   'g'
         .byte   'q'
+        .byte   'u'
         .byte   '<'
         .byte   '>'
         .byte   ':'
@@ -77,6 +79,7 @@ handlers:
         .addr   dump_memory-1
         .addr   run_code-1
         .addr   monitor_exit-1
+        .addr   flash_update-1
         .addr   xmodem_receive-1
         .addr   xmodem_send-1
         .addr   set_memory-1

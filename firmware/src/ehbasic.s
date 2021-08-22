@@ -426,7 +426,7 @@ LAB_SKFE    = LAB_STAK+$FE  ; flushed stack address
 LAB_SKFF    = LAB_STAK+$FF  ; flushed stack address
 
 ; Put the "page 2" stuff below the OS vectors for now
-ccflag		= $03e0	; BASIC CTRL-C flag, 00 = enabled, 01 = dis
+ccflag		= $00E0	    ; BASIC CTRL-C flag, 00 = enabled, 01 = dis
 ccbyte		= ccflag+1	; BASIC CTRL-C byte
 ccnull		= ccbyte+1	; BASIC CTRL-C byte timeout
 VEC_CC		= ccnull+1	; ctrl c check vector
@@ -434,25 +434,32 @@ VEC_LD      = VEC_CC+2  ; load vector
 VEC_SV		= VEC_LD+2	; save vector
 
 ;VEC_IN		= VEC_CC+2	; input vector
-;VEC_OUT		= VEC_IN+2	; output vector
+;VEC_OUT	= VEC_IN+2	; output vector
 ;VEC_LD		= VEC_OUT+2	; load vector
 
 ; Ibuffs can now be anywhere in RAM, ensure that the max length is < $80
         .segment "BUFFERS"
 
-IBUFF_SZ = 128
+IBUFF_SZ = 126
 Ibuffs:  .res  IBUFF_SZ
 
 Ram_base = __USRRAM_START__    ; start of user RAM (set as needed, should be page aligned)
 Ram_top  = __USRRAM_START__ + __USRRAM_SIZE__ ; end of user RAM+1 (set as needed, should be page aligned)
 
-        .segment "HIGHROM"
+        .segment "BIOSROM"
 
 ; BASIC cold start entry point
 
 ; new page 2 initialisation, copy block to ccflag on
 
 LAB_COLD:
+    longm
+    ldaw #$0000
+    tcd
+    ldaw #$0100
+    tcs
+    shortm
+
 	LDY	#PG2_TABE-PG2_TABS-1
 					; byte count-1
 LAB_2D13:
@@ -901,8 +908,8 @@ LAB_134B:
 LAB_1357:
 	LDX	#$00			; clear BASIC line buffer pointer
 LAB_1359:
-	COP $01            ; call scan input device
-	BCS	LAB_1359		; loop if no byte
+	COP $01             ; call scan input device
+	BCC	LAB_1359		; loop if no byte
 
 	BEQ	LAB_1359		; loop until valid input (ignore NULLs)
 
@@ -2316,8 +2323,8 @@ LAB_1866:
 LAB_CRLF:
 	LDA	#$0D			; load [CR]
 	JSR	LAB_PRNA		; go print the character
-	LDA	#$0A			; load [LF]
-	BNE	LAB_PRNA		; go print the character and return, branch always
+	;LDA	#$0A			; load [LF]
+	;BNE	LAB_PRNA		; go print the character and return, branch always
 
 LAB_188B:
 	LDA	TPos			; get terminal position
@@ -7159,19 +7166,19 @@ LAB_EXCH:
 
 CTRLC:
 	LDA	ccflag		; get [CTRL-C] check flag
-	BNE	LAB_FBA2		; exit if inhibited
+	BNE	LAB_FBA2	; exit if inhibited
 
-	COP $01		; scan input device
-	BCS	LAB_FBA0		; exit if buffer empty
+	COP $01		    ; scan input device
+	BCC	LAB_FBA0	; exit if buffer empty
 
 	STA	ccbyte		; save received byte
-	LDX	#$20			; "life" timer for bytes
+	LDX	#$20		; "life" timer for bytes
 	STX	ccnull		; set countdown
-	JMP	LAB_1636		; return to BASIC
+	JMP	LAB_1636	; return to BASIC
 
 LAB_FBA0:
 	LDX	ccnull		; get countdown byte
-	BEQ	LAB_FBA2		; exit if finished
+	BEQ	LAB_FBA2	; exit if finished
 
 	DEC	ccnull		; else decrement countdown
 LAB_FBA2:
@@ -7730,10 +7737,10 @@ StrTab:
 EndTab:
 
 LAB_BYTES_FREE:
-        .byte   " bytes free",$0d,$0a,$00
+        .byte   " bytes free",$0d,$00
 
 LAB_BANNER:
-        .byte   "Enhanced BASIC 2.3 for COLE-1",$0d,$0a,$00
+        .byte   "Enhanced BASIC 2.3.1 for COLE-1+",$0d,$00
 
 ; numeric constants and series
 

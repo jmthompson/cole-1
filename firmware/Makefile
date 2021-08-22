@@ -1,4 +1,4 @@
-ROM_VERSION := 05
+ROM_VERSION := 06
 HW_REVISION := 01
 
 AS := ca65
@@ -8,6 +8,7 @@ SRCS     := $(wildcard src/*.s) buildinfo.s
 OBJS   	 := ${SRCS:.s=.o}
 LISTINGS := ${SRCS:.s=.l}
 ROMFILE  := rom.bin
+UPDFILE  := flash.bin
 DUMPFILE := dump.bin
 RAMFILE  := ram.bin
 MAPFILE  := cole-1.map
@@ -16,6 +17,7 @@ CHIP     := AT28C256
 
 ${ROMFILE}: ${OBJS}
 	${LD} ${OBJS} -o ${ROMFILE} -C cole-1.cfg -m ${MAPFILE}
+	dd if=${ROMFILE} of=${UPDFILE} bs=1 skip=4096
 
 all: ${ROMFILE}
 
@@ -26,10 +28,10 @@ prog: ${ROMFILE}
 	minipro -p ${CHIP} -w ${ROMFILE}
 
 clean:
-	rm -f buildinfo.s ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE}
+	rm -f buildinfo.s ${OBJS} ${LISTINGS} ${MAPFILE} ${ROMFILE} ${RAMFILE} ${UPDFILE}
 
 buildinfo.s:
-	echo ".segment \"LOWROM\"" > buildinfo.s
+	echo ".segment \"BOOTROM\"" > buildinfo.s
 	echo ".export hw_revision" >> buildinfo.s
 	echo ".export rom_version" >> buildinfo.s
 	echo ".export rom_date" >> buildinfo.s

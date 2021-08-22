@@ -1,5 +1,5 @@
 
-        .segment "RODATA"
+        .segment "BIOSROM"
 
         .include "disasm_constants.s"
 
